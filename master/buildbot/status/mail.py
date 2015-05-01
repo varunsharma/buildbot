@@ -246,7 +246,7 @@ class MailNotifier(base.StatusReceiverMultiService, buildset.BuildSetSummaryNoti
                      "messageFormatter", "extraHeaders"]
 
     possible_modes = ("change", "failing", "passing", "problem", "warnings",
-                      "exception", "cancelled")
+                      "exception", "cancelled", "forced")
 
     def __init__(self, fromaddr, mode=("failing", "passing", "warnings"),
                  tags=None, builders=None, addLogs=False,
@@ -294,6 +294,7 @@ class MailNotifier(base.StatusReceiverMultiService, buildset.BuildSetSummaryNoti
                      - "warnings": send mail if a build contain warnings
                      - "exception": send mail if a build fails due to an exception
                      - "cancelled": send mail if a build is cancelled
+                     - "cancelled": send mail if a build is forced
                      - "all": always send mail
                      Defaults to ("failing", "passing", "warnings").
 
