@@ -53,6 +53,7 @@ class DataConnector(service.AsyncService):
         'buildbot.data.forceschedulers',
         'buildbot.data.root',
         'buildbot.data.properties',
+        'buildbot.data.tryclients',
     ]
 
     def __init__(self, master):

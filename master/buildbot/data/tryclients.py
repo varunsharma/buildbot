@@ -1,5 +1,5 @@
 from buildbot.data import base
-
+from buildbot.data import types
 
 
 class TryClientEndpoint(base.Endpoint):
@@ -10,7 +10,7 @@ class TryClientEndpoint(base.Endpoint):
     """
 
     def get(self, resultSpec, kwargs):
-        return self.master.db.tryclients.getPub(kwargs['tryclientid'])
+        return self.master.db.tryclient.getTryClient(kwargs['tryclientid'])
 
 
 class TryClient(base.ResourceType):
@@ -24,4 +24,4 @@ class TryClient(base.ResourceType):
         label = types.String()
         repo = types.String()
         patch = types.String()
-    entityType = EntityType()
+    entityType = EntityType(name)
