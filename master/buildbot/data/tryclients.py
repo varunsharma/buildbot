@@ -1,27 +1,27 @@
 from buildbot.data import base
 
 
+
+class TryClientEndpoint(base.Endpoint):
+    isCollection = False
+    pathPatterns = """ 
+        /tryclient
+        /tryclient/i:tryclientid
+    """
+
+    def get(self, resultSpec, kwargs):
+        return self.master.db.tryclients.getPub(kwargs['tryclientid'])
+
+
 class TryClient(base.ResourceType):
     name = 'tryclient'
-    endpoints = []
+    endpoints = [TryClientEndpoint]
     keyFields = ['tryclientid']
 
     class EntityType(types.Entity):
         tryclientid = types.Integer()
         name = types.String()
-        num_taps = types.Integer()
-        closes_at = types.Integer()
+        label = types.String()
+        repo = types.String()
+        patch = types.String()
     entityType = EntityType()
-
-
-class PubEndpoint(base.Endpoint):
-    pathPattern = ( 'tryclient', 'i:tryclientid' )
-    def get(self, resultSpec, kwargs):
-        return self.master.db.tryclients.getPub(kwargs['tryclientid'])
-
-class PubResourceType(base.ResourceType):
-    @base.updateMethod
-    @defer.inlineCallbacks
-    def setPubTapList(self, pubid, beers):
-        pub = yield self.master.db.pubs.getPub(pubid)
-        self.produceMessage(pub, ’taps-updated’)
