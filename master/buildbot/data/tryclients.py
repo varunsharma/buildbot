@@ -10,7 +10,8 @@ class TryClientEndpoint(base.Endpoint):
     """
 
     def get(self, resultSpec, kwargs):
-        return self.master.db.tryclient.getTryClient(kwargs['tryclientid'])
+        return 'hi'
+#        return self.master.db.tryclient.getTryClient(kwargs['tryclientid'])
 
 
 class TryClient(base.ResourceType):

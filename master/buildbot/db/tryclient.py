@@ -6,4 +6,3 @@ class TryClientConnectorComponent(base.DBConnectorComponent):
 
     def getTryClient(self, name):
         return 'Hi from %s' %name
-
