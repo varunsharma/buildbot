@@ -173,6 +173,7 @@ setup_args = {
         "buildbot.steps.source",
         "buildbot.util",
         "buildbot.www",
+        "buildbot.www.hooks",
     ] + ([] if BUILDING_WHEEL else [  # skip tests for wheels (save 50% of the archive)
         "buildbot.test",
         "buildbot.test.util",
@@ -284,6 +285,7 @@ setup_args = {
         ]),
         ('buildbot.reporters', [
             ('buildbot.reporters.mail', ['MailNotifier']),
+            ('buildbot.reporters.gerrit', ['GerritStatusPush']),
         ]),
         ('buildbot.util', [
             # Connection seems to be a way too generic name, though

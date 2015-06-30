@@ -74,7 +74,7 @@ command_version = "2.16"
 #  >= 2.16: listdir command added to read a directory
 
 
-class Command:
+class Command(object):
     implements(ISlaveCommand)
 
     """This class defines one command that can be invoked by the build master.
@@ -147,7 +147,7 @@ class Command:
         self.args = args
         self.startTime = None
 
-        missingArgs = filter(lambda arg: arg not in args, self.requiredArgs)
+        missingArgs = [arg for arg in self.requiredArgs if arg not in args]
         if missingArgs:
             raise ValueError("%s is missing args: %s" %
                              (self.__class__.__name__, ", ".join(missingArgs)))

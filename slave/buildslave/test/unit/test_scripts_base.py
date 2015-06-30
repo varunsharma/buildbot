@@ -13,7 +13,7 @@
 #
 # Copyright Buildbot Team Members
 
-import cStringIO
+import io
 import os
 import sys
 
@@ -22,25 +22,24 @@ from buildslave.test.util import misc
 from twisted.trial import unittest
 
 
-class TestIsBuildslaveDir(misc.FileIOMixin, unittest.TestCase):
+class TestIsBuildslaveDir(misc.FileIOMixin, misc.LoggingMixin, unittest.TestCase):
 
     """Test buildslave.scripts.base.isBuildslaveDir()"""
 
     def setUp(self):
         # capture output to stdout
-        self.mocked_stdout = cStringIO.StringIO()
+        self.mocked_stdout = io.BytesIO()
         self.patch(sys, "stdout", self.mocked_stdout)
+
+        self.setUpLogging()
 
         # generate OS specific relative path to buildbot.tac inside basedir
         self.tac_file_path = os.path.join("testdir", "buildbot.tac")
 
     def assertReadErrorMessage(self, strerror):
-        expected_message = "error reading '%s': %s\n" \
-                           "invalid buildslave directory 'testdir'\n" \
-            % (self.tac_file_path, strerror)
-        self.assertEqual(self.mocked_stdout.getvalue(),
-                         expected_message,
-                         "unexpected error message on stdout")
+
+        self.assertLogged("error reading '%s': %s" % (self.tac_file_path, strerror),
+                          "invalid buildslave directory 'testdir'")
 
     def test_open_error(self):
         """Test that open() errors are handled."""
@@ -81,10 +80,9 @@ class TestIsBuildslaveDir(misc.FileIOMixin, unittest.TestCase):
         # check that isBuildslaveDir() flags directory as invalid
         self.assertFalse(base.isBuildslaveDir("testdir"))
 
-        # check that correct error message was printed to stdout
-        self.assertEqual(self.mocked_stdout.getvalue(),
-                         "unexpected content in '%s'\n" % self.tac_file_path +
-                         "invalid buildslave directory 'testdir'\n",
+        # check that correct error message was printed to the log
+        self.assertLogged("unexpected content in '%s'" % self.tac_file_path,
+                         "invalid buildslave directory 'testdir'",
                          "unexpected error message on stdout")
         # check that open() was called with correct path
         self.open.assert_called_once_with(self.tac_file_path)

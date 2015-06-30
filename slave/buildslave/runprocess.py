@@ -17,6 +17,8 @@
 Support for running 'shell commands'
 """
 
+from future.utils import iteritems
+
 import os
 import re
 import signal
@@ -24,7 +26,6 @@ import stat
 import subprocess
 import sys
 import traceback
-import types
 
 from collections import deque
 from tempfile import NamedTemporaryFile
@@ -81,7 +82,7 @@ def shell_quote(cmd_list):
         return " ".join([quote(e) for e in cmd_list])
 
 
-class LogFileWatcher:
+class LogFileWatcher(object):
     POLL_INTERVAL = 2
 
     def __init__(self, command, name, logfile, follow=False):
@@ -227,7 +228,7 @@ class RunProcessPP(protocol.ProcessProtocol):
         self.command.finished(sig, rc)
 
 
-class RunProcess:
+class RunProcess(object):
 
     """
     This is a helper class, used by slave commands to run programs in a child
@@ -318,7 +319,7 @@ class RunProcess:
         if not os.path.exists(workdir):
             os.makedirs(workdir)
         if environ:
-            for key, v in environ.iteritems():
+            for key, v in iteritems(environ):
                 if isinstance(v, list):
                     # Need to do os.pathsep translation.  We could either do that
                     # by replacing all incoming ':'s with os.pathsep, or by
@@ -336,11 +337,11 @@ class RunProcess:
             def subst(match):
                 return os.environ.get(match.group(1), "")
             newenv = {}
-            for key in os.environ.keys():
+            for key in os.environ:
                 # setting a key to None will delete it from the slave environment
                 if key not in environ or environ[key] is not None:
                     newenv[key] = os.environ[key]
-            for key, v in environ.iteritems():
+            for key, v in iteritems(environ):
                 if v is not None:
                     if not isinstance(v, basestring):
                         raise RuntimeError("'env' values must be strings or "
@@ -443,7 +444,7 @@ class RunProcess:
         self.pp = RunProcessPP(self)
 
         self.using_comspec = False
-        if type(self.command) in types.StringTypes:
+        if isinstance(self.command, basestring):
             if runtime.platformType == 'win32':
                 argv = os.environ['COMSPEC'].split()  # allow %COMSPEC% to have args
                 if '/c' not in argv:
@@ -581,7 +582,7 @@ class RunProcess:
         tf = NamedTemporaryFile(dir='.', suffix=".bat", delete=False)
         # echo off hides this cheat from the log files.
         tf.write("@echo off\n")
-        if type(self.command) in types.StringTypes:
+        if isinstance(self.command, basestring):
             tf.write(self.command)
         else:
             tf.write(win32_batch_quote(self.command))

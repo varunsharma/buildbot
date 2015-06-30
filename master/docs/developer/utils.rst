@@ -103,20 +103,41 @@ Several small utilities are available at the top-level :mod:`buildbot.util` pack
 
     Return the current time, using either ``reactor.seconds`` or ``time.time()``.
 
-.. py:function:: flatten(list)
+.. py:function:: flatten(list, [types])
 
     :param list: potentially nested list
+    :param types: An optional iterable of the types to flatten.
+        By default, if unspecified, this flattens both lists and tuples
     :returns: flat list
 
-    Flatten nested lists into a list containing no other lists.
-    For example:
+    Flatten nested lists into a list containing no other lists. For example:
+
+    .. code-block:: python
+
+        >>> flatten([ [  1, 2 ], 3, [ [ 4 ], 5 ] ])
+        [ 1, 2, 3, 4, 5 ]
+
+    Both lists and tuples are looked at by default.
+
+.. py:function:: flattened_iterator(list, [types])
+
+    :param list: potentially nested list
+    :param types: An optional iterable of the types to flatten.
+        By default, if unspecified, this flattens both lists and tuples.
+    :returns: iterator over every element that isn't in types
+
+    Returns a generator that doesn't yield any lists/tuples.  For example:
 
     .. code-block:: none
 
-        >>> flatten([ [  1, 2 ], 3, [ [ 4 ] ] ])
-        [ 1, 2, 3, 4 ]
+        >>> for x in flattened_iterator([ [  1, 2 ], 3, [ [ 4 ] ] ]):
+        >>>     print x
+        1
+        2
+        3
+        4
 
-    Note that this looks strictly for lists -- tuples, for example, are not flattened.
+     Use this for extremely large lists to keep memory-usage down and improve performance when you only need to iterate once.
 
 .. py:function:: none_or_str(obj)
 
@@ -287,7 +308,7 @@ This package provides a few useful collection objects.
 
     This is a collection of named sets.
     In principal, it contains an empty set for every name, and you can add things to sets, discard things from sets, and so on.
-    
+
     ::
 
         >>> ks = KeyedSets()

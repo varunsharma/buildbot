@@ -2,7 +2,10 @@ angular.module 'app', [
     'ngAria',
     'ngAnimate',
     'ngMaterial',
+    'bbData'
     'ui.router',
+    'ng-sortable',
+    'angularMoment',
 ]
     .config ($mdThemingProvider) ->
         $mdThemingProvider.theme('default')
@@ -11,4 +14,3 @@ angular.module 'app', [
 
     .config ($mdIconProvider) ->
         $mdIconProvider.defaultIconSet('/icons/iconset.svg', 512)
-

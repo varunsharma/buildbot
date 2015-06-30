@@ -12,11 +12,11 @@
 # Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # Copyright Buildbot Team Members
-
+from __future__ import print_function
 import pprint
 
 
-class FakeSlaveBuilder:
+class FakeSlaveBuilder(object):
 
     """
     Simulates a SlaveBuilder, but just records the updates from sendUpdate
@@ -33,7 +33,7 @@ class FakeSlaveBuilder:
 
     def sendUpdate(self, data):
         if self.debug:
-            print "FakeSlaveBuilder.sendUpdate", data
+            print("FakeSlaveBuilder.sendUpdate", data)
         self.updates.append(data)
 
     def show(self):

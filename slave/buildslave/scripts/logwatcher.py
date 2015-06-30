@@ -13,7 +13,6 @@
 #
 # Copyright Buildbot Team Members
 
-
 import os
 import platform
 
@@ -21,11 +20,12 @@ from twisted.internet import defer
 from twisted.internet import error
 from twisted.internet import protocol
 from twisted.internet import reactor
+from twisted.python import log
 from twisted.protocols.basic import LineOnlyReceiver
 from twisted.python.failure import Failure
 
 
-class FakeTransport:
+class FakeTransport(object):
     disconnecting = False
 
 
@@ -51,7 +51,7 @@ class TailProcess(protocol.ProcessProtocol):
         self.lw.dataReceived(data)
 
     def errReceived(self, data):
-        print "ERR: '%s'" % (data,)
+        log.msg("ERR: '%s'" % (data,))
 
 
 class LogWatcher(LineOnlyReceiver):
@@ -126,7 +126,7 @@ class LogWatcher(LineOnlyReceiver):
             self.processtype = "buildslave"
 
         if self.in_reconfig:
-            print line
+            log.msg(line)
 
         if "message from master: attached" in line:
             return self.finished("buildslave")

@@ -15,6 +15,7 @@
 
 import os
 
+from twisted.python import log
 
 slaveTACTemplate = ["""
 import os
@@ -83,15 +84,15 @@ def _makeBaseDir(basedir, quiet):
     """
     if os.path.exists(basedir):
         if not quiet:
-            print "updating existing installation"
+            log.msg("updating existing installation")
         return
 
     if not quiet:
-        print "mkdir", basedir
+        log.msg("mkdir", basedir)
 
     try:
         os.mkdir(basedir)
-    except OSError, exception:
+    except OSError as exception:
         raise CreateSlaveError("error creating directory %s: %s" %
                                (basedir, exception.strerror))
 
@@ -112,18 +113,18 @@ def _makeBuildbotTac(basedir, tac_file_contents, quiet):
     if os.path.exists(tacfile):
         try:
             oldcontents = open(tacfile, "rt").read()
-        except IOError, exception:
+        except IOError as exception:
             raise CreateSlaveError("error reading %s: %s" %
                                    (tacfile, exception.strerror))
 
         if oldcontents == tac_file_contents:
             if not quiet:
-                print "buildbot.tac already exists and is correct"
+                log.msg("buildbot.tac already exists and is correct")
             return
 
         if not quiet:
-            print "not touching existing buildbot.tac"
-            print "creating buildbot.tac.new instead"
+            log.msg("not touching existing buildbot.tac")
+            log.msg("creating buildbot.tac.new instead")
 
         tacfile = os.path.join(basedir, "buildbot.tac.new")
 
@@ -131,8 +132,8 @@ def _makeBuildbotTac(basedir, tac_file_contents, quiet):
         f = open(tacfile, "wt")
         f.write(tac_file_contents)
         f.close()
-        os.chmod(tacfile, 0600)
-    except IOError, exception:
+        os.chmod(tacfile, 0o600)
+    except IOError as exception:
         raise CreateSlaveError("could not write %s: %s" %
                                (tacfile, exception.strerror))
 
@@ -154,12 +155,12 @@ def _makeInfoFiles(basedir, quiet):
             return False
 
         if not quiet:
-            print "Creating %s, you need to edit it appropriately." % \
-                os.path.join("info", file)
+            log.msg("Creating %s, you need to edit it appropriately." %
+                os.path.join("info", file))
 
         try:
             open(filepath, "wt").write(contents)
-        except IOError, exception:
+        except IOError as exception:
             raise CreateSlaveError("could not write %s: %s" %
                                    (filepath, exception.strerror))
         return True
@@ -167,10 +168,10 @@ def _makeInfoFiles(basedir, quiet):
     path = os.path.join(basedir, "info")
     if not os.path.exists(path):
         if not quiet:
-            print "mkdir", path
+            log.msg("mkdir", path)
         try:
             os.mkdir(path)
-        except OSError, exception:
+        except OSError as exception:
             raise CreateSlaveError("error creating directory %s: %s" %
                                    (path, exception.strerror))
 
@@ -186,11 +187,11 @@ def _makeInfoFiles(basedir, quiet):
 
     if not os.path.exists(access_uri):
         if not quiet:
-            print "Not creating %s - add it if you wish" % \
-                os.path.join("info", "access_uri")
+            log.msg("Not creating %s - add it if you wish" %
+                    os.path.join("info", "access_uri"))
 
     if created and not quiet:
-        print "Please edit the files in %s appropriately." % path
+        log.msg("Please edit the files in %s appropriately." % path)
 
 
 def createSlave(config):
@@ -214,12 +215,12 @@ def createSlave(config):
         _makeBaseDir(basedir, quiet)
         _makeBuildbotTac(basedir, contents, quiet)
         _makeInfoFiles(basedir, quiet)
-    except CreateSlaveError, exception:
-        print "%s\nfailed to configure buildslave in %s" % \
-            (exception, config['basedir'])
+    except CreateSlaveError as exception:
+        log.msg("%s\nfailed to configure buildslave in %s" %
+                (exception, config['basedir']))
         return 1
 
     if not quiet:
-        print "buildslave configured in %s" % basedir
+        log.msg("buildslave configured in %s" % basedir)
 
     return 0
