@@ -480,6 +480,18 @@ class Model(base.DBConnectorComponent):
                                          nullable=False),
                                )
 
+    # clients
+
+    # The clients table creates the name, name_hash, patch and diff for the new try client
+    clients = sa.Table('clients', metadata,
+                          sa.Column("id", sa.Integer, primary_key=True),
+                          sa.Column('name', sa.Text, nullable=False),
+                          sa.Column('name_hash', sa.String(40), nullable=False),
+                          sa.Column('repo', sa.String(100), nullable=False),
+                          sa.Column('diff', sa.String(1000), nullable=False)
+                          )
+
+
     # tags
     tags = sa.Table('tags', metadata,
                     sa.Column('id', sa.Integer, primary_key=True),
@@ -607,7 +619,8 @@ class Model(base.DBConnectorComponent):
     sa.Index('builder_masters_masterid', builder_masters.c.masterid)
     sa.Index('builder_masters_identity',
              builder_masters.c.builderid, builder_masters.c.masterid,
-             unique=True)
+             unique= True)
+    sa.Index('client_name_hash', clients.c.name_hash, unique=True)
     sa.Index('tag_name_hash', tags.c.name_hash, unique=True)
     sa.Index('builders_tags_builderid',
              builders_tags.c.builderid)
