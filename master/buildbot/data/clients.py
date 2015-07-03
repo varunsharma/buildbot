@@ -24,7 +24,7 @@ class Client2Data():
 
 
 class ClientEndpoint(base.Endpoint):
-    isCollection = False
+    isCollection = True
     pathPatterns = """ 
         /clients/n:clientid
     """
