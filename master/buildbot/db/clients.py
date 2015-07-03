@@ -64,11 +64,11 @@ class ClientConnectorComponent(base.DBConnectorComponent):
 
             wc = None
             if _clientid:
-                wc = (client_tbl.c.id == _clientid)
+                wc = (client_tbl.c.clientid == _clientid)
 
-            q = sa.select([client_tbl.c.id, client_tbl.c.name],
+            q = sa.select([client_tbl.c.clientid, client_tbl.c.name, client_tbl.c.repo, client_tbl.c.diff],
                           whereclause=wc)
 
-            return [dict(id=row.id, name=row.name)
+            return [dict(clientid=row.clientid, name=row.name, repo = row.repo, diff = row.diff)
                     for row in conn.execute(q).fetchall()]
         return self.db.pool.do(thd)
