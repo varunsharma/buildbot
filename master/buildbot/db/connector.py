@@ -35,6 +35,7 @@ from buildbot.db import state
 from buildbot.db import steps
 from buildbot.db import tags
 from buildbot.db import users
+from buildbot.db import clients
 from buildbot.util import service
 from twisted.application import internet
 from twisted.internet import defer
@@ -93,6 +94,7 @@ class DBConnector(service.ReconfigurableServiceMixin, service.AsyncMultiService)
         self.steps = steps.StepsConnectorComponent(self)
         self.tags = tags.TagsConnectorComponent(self)
         self.logs = logs.LogsConnectorComponent(self)
+        self.clients = clients.ClientConnectorComponent(self)
 
         self.cleanup_timer = internet.TimerService(self.CLEANUP_PERIOD,
                                                    self._doCleanup)
