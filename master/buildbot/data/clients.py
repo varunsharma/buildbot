@@ -41,6 +41,8 @@ class ClientEndpoint(base.Endpoint):
                  diff=bdict['diff'])
                 ])
 
+
+
 class ClientsEndpoint(base.Endpoint):
     isCollection = True
     rootLinkName = 'clients'
@@ -67,11 +69,12 @@ class ClientsEndpoint(base.Endpoint):
 
 class Client(base.ResourceType):
     name = 'client'
-    endpoints = [ClientEndpoint]
+    plural = 'clients'
+    endpoints = [ClientEndpoint, ClientsEndpoint]
     keyFields = ['clientid']
 
     class EntityType(types.Entity):
-        clientid = types.Identifier()
+        clientid = types.Integer()
         name = types.String()
         repo = types.String()
         diff = types.String()
