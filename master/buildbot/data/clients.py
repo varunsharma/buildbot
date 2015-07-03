@@ -26,20 +26,43 @@ class Client2Data():
 class ClientEndpoint(base.Endpoint):
     isCollection = False
     pathPatterns = """ 
-        /clients
-        /client/i:clientid
+        /clients/n:clientid
     """
 
     @defer.inlineCallbacks
     def get(self, resultSpec, kwargs):
-        bdicts = yield self.master.db.clients.getClient(
-            clientid=kwargs.get('clientid', None))
+        clientid = kwargs['clientid']
+        bdict = yield self.master.db.clients.getClient(
+            clientid=clientid)
         defer.returnValue([
-            dict(tryclientid=bd['clientid'],
+            dict(clientid=bdict['clientid'],
+                 name=bdict['name'],
+                 repo=bdict['repo'],
+                 diff=bdict['diff'])
+                ])
+
+class ClientsEndpoint(base.Endpoint):
+    isCollection = True
+    rootLinkName = 'clients'
+    pathPatterns = """ 
+        /clients
+    """
+
+    @defer.inlineCallbacks
+    def get(self, resultSpec, kwargs):
+        bdicts = yield self.master.db.clients.getClients()
+        defer.returnValue([
+            dict(clientid=bd['clientid'],
                  name=bd['name'],
                  repo=bd['repo'],
                  diff=bd['diff'])
             for bd in bdicts])
+
+    def startConsuming(self, callback, options, kwargs):
+        return self.master.mq.startConsuming(callback,('clients', None, None))
+
+
+
 
 
 class Client(base.ResourceType):
