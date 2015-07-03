@@ -15,40 +15,41 @@
 
 from buildbot.data import base
 from buildbot.data import types
-from buildbot.clients import NewTryClient
+from buildbot.clients import newtryclient
 from twisted.internet import defer
 
 
-class tryClient2Data(tc):
+class Client2Data():
     pass
 
 
-class TryClientEndpoint(base.Endpoint):
+class ClientEndpoint(base.Endpoint):
     isCollection = False
     pathPatterns = """ 
-        /tryclient
-        /tryclient/i:tryclientid
+        /clients
+        /client/i:clientid
     """
 
     @defer.inlineCallbacks
     def get(self, resultSpec, kwargs):
-        bdicts = yield self.master.db.tryclients.getTryClient(
-            tryclientid=kwargs.get('tryclientid', None))
+        bdicts = yield self.master.db.clients.getClient(
+            clientid=kwargs.get('clientid', None))
         defer.returnValue([
-            dict(tryclientid=bd['tryclientid'],
+            dict(tryclientid=bd['clientid'],
                  name=bd['name'],
                  repo=bd['repo'],
                  diff=bd['diff'])
             for bd in bdicts])
 
 
-class TryClient(base.ResourceType):
-    name = 'tryclient'
-    endpoints = [TryClientEndpoint]
-    keyFields = ['tryclientid']
+class Client(base.ResourceType):
+    name = 'client'
+    endpoints = [ClientEndpoint]
+    keyFields = ['clientid']
 
     class EntityType(types.Entity):
-        tryclientid = types.Identifier()
+        clientid = types.Identifier()
+        name = types.String()
         repo = types.String()
         diff = types.String()
     entityType = EntityType(name)
