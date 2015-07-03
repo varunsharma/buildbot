@@ -20,6 +20,7 @@ import warnings
 from buildbot import interfaces
 from buildbot import locks
 from buildbot import util
+from buildbot import clients
 from buildbot.revlinks import default_revlink_matcher
 from buildbot.util import config as util_config
 from buildbot.util import safeTranslate
@@ -121,6 +122,7 @@ class MasterConfig(util.ComparableMixin):
             logfileName='http.log',
         )
         self.services = {}
+        self.tryclients = []
 
     _known_config_keys = set([
         "buildbotURL", "buildCacheSize", "builders", "buildHorizon", "caches",
@@ -131,7 +133,7 @@ class MasterConfig(util.ComparableMixin):
         "collapseRequests", "metrics", "mq", "multiMaster", "prioritizeBuilders",
         "projectName", "projectURL", "properties", "protocols", "revlink",
         "schedulers", "services", "slavePortnum", "slaves", "status", "title", "titleURL",
-        "user_managers", "validation", 'www'
+        "user_managers", "validation", 'www', 'tryclients'
     ])
     compare_attrs = list(_known_config_keys)
 
@@ -241,6 +243,7 @@ class MasterConfig(util.ComparableMixin):
             config.load_user_managers(filename, config_dict)
             config.load_www(filename, config_dict)
             config.load_services(filename, config_dict)
+            config.load_tryclients(filename, config_dict)
 
             # run some sanity checks
             config.check_single_master()
@@ -630,6 +633,17 @@ class MasterConfig(util.ComparableMixin):
                 continue
 
             self.services[_service.name] = _service
+
+    def load_tryclients(self, filename, config_dict):
+        if 'tryclients' not in config_dict:
+            return
+        self.tryclients = []
+        for _tryclient in config_dict['tryclients']:
+            if not isinstance(_tryclient, clients.NewTryClient):
+                error("%s object should be an instance of buildbot.clients.NewTryClient")
+                continue
+
+            self.tryclients[_tryclient.name] = _tryclient
 
     def check_single_master(self):
         # check additional problems that are only valid in a single-master
